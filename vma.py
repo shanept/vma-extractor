@@ -232,6 +232,25 @@ def extract_configs(fo, args, vma_header):
 
         if args.verbose: print(' OK')
 
+    if args.verbose: print('done')
+
+
+def extract_configs_only(fo, args):
+    os.makedirs(args.destination, exist_ok=True)
+
+    fo.seek(0, os.SEEK_END)
+    filesize = fo.tell()
+    fo.seek(0, os.SEEK_SET)
+
+    vma_header = VmaHeader(fo, args.skip_hash)
+
+    # check the md5 checksum given in the header with the value calculated from
+    # the file
+    if vma_header.generated_md5sum is not None:
+        assert vma_header.md5sum == vma_header.generated_md5sum
+
+    extract_configs(fo, args, vma_header)
+
 
 def extract(fo, args):
     os.makedirs(args.destination, exist_ok=True)
@@ -336,6 +355,8 @@ def main():
     parser.add_argument('-v', '--verbose', default=False, action='store_true')
     parser.add_argument('-f', '--force', default=False, action='store_true',
             help='overwrite target file if it exists')
+    parser.add_argument('--config-only', default=False, action='store_true',
+            help='only extract configuration file')
     parser.add_argument('--skip-hash', default=False, action='store_true',
             help='do not perform md5 checksum test of data')
     args = parser.parse_args()
@@ -349,7 +370,10 @@ def main():
         return 1
 
     with open(args.filename, 'rb') as fo:
-        extract(fo, args)
+        if(args.config_only):
+            extract_configs_only(fo, args)
+        else:
+            extract(fo, args)
 
     return 0
 
