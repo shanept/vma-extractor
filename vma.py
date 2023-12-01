@@ -232,8 +232,6 @@ def extract_configs(fo, args, vma_header):
 
         if args.verbose: print(' OK')
 
-    if args.verbose: print('done')
-
 
 def extract_configs_only(fo, args):
     os.makedirs(args.destination, exist_ok=True)
@@ -250,6 +248,8 @@ def extract_configs_only(fo, args):
         assert vma_header.md5sum == vma_header.generated_md5sum
 
     extract_configs(fo, args, vma_header)
+
+    if args.verbose: print('done')
 
 
 def extract(fo, args):
